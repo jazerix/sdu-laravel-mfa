@@ -1,0 +1,33 @@
+{
+  "name": "sdu/laravel-mfa",
+  "description": "Authentication package for SDU MFA",
+  "type": "library",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Niels Faurskov",
+      "email": "nfa@sdu.dk"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "illuminate/support": "^8.0",
+    "guzzlehttp/guzzle": "7.3.0",
+    "php": "^7.4|^8.0",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "illuminate/routing": "^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "SDU\\MFA\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SDU\\MFA\\MFAServiceProvider"
+      ]
+    }
+  }
+}
