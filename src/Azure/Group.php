@@ -8,7 +8,7 @@ class Group implements Arrayable
 {
     private string $id;
 
-    private string $displayName;
+    private ?string $displayName;
 
     private ?string $description;
 
@@ -31,7 +31,7 @@ class Group implements Arrayable
     /**
      * @return string
      */
-    public function getDisplayName() : string
+    public function getDisplayName() : ?string
     {
         return $this->displayName;
     }
@@ -39,7 +39,7 @@ class Group implements Arrayable
     /**
      * @param string $displayName
      */
-    public function setDisplayName(string $displayName) : void
+    public function setDisplayName(?string $displayName) : void
     {
         $this->displayName = $displayName;
     }

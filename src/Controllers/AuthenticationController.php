@@ -63,7 +63,7 @@ class AuthenticationController extends Controller
         /** @var Repository $config */
         $config = app(Repository::class);
         $value  = $config->get('sdu-mfa.required_ad_groups');
-        return is_string($value) ? explode('|', $value) : $value;
+        return is_string($value) ? explode('|', $value) : (is_null($value) ? [] : $value);
     }
 
     public function forbidden()
