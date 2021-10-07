@@ -2,19 +2,23 @@
 
 namespace SDU\MFA;
 
+use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use SDU\MFA\Exceptions\MFAException;
 
 class SDUGuard implements Guard
 {
     private Request $request;
+    private Dispatcher $events;
 
     private ?Authenticatable $user;
 
     public function __construct(Request $request)
     {
+        $this->events  = app(Dispatcher::class);
         $this->request = $request;
         $this->user    = null;
     }
@@ -59,11 +63,27 @@ class SDUGuard implements Guard
     {
         session()->put('sdu.mfa.user', $user);
         $this->user = $user;
+        $this->fireLoginEvent($user);
     }
 
     public function logout()
     {
         session()->forget('sdu.mfa.user');
         $this->user = null;
+    }
+
+    /**
+     * Fire the login event if the dispatcher is set.
+     *
+     * @param \Illuminate\Contracts\Auth\Authenticatable $user
+     * @param bool $remember
+     * @return void
+     */
+    protected function fireLoginEvent($user)
+    {
+        if (isset($this->events))
+        {
+            $this->events->dispatch(new Login(SDUGuard::class, $user, false));
+        }
     }
 }
