@@ -2,6 +2,8 @@
 
 namespace SDU\MFA;
 
+use App\Listeners\SaveUserToDatabase;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +18,6 @@ class MFAServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
     }
 
     /**
@@ -29,6 +30,10 @@ class MFAServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/mfa.php' => config_path('sdu-mfa.php')
         ]);
+
+        $this->publishes([
+            __DIR__ . '/../migrations' => database_path('migrations')
+        ], 'sdu-mfa-migrations');
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 

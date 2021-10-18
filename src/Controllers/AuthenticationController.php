@@ -7,7 +7,7 @@ use Illuminate\Config\Repository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Routing\Controller;
 use SDU\MFA\Azure\Graph;
-use SDU\MFA\User;
+use SDU\MFA\Azure\User;
 
 class AuthenticationController extends Controller
 {
@@ -17,7 +17,7 @@ class AuthenticationController extends Controller
 
         /** @var Session $session */
         $session = app(Session::class);
-        
+
         if ($state->id != $session->getId())
             return response('Bad Request', 400);
 
@@ -53,9 +53,39 @@ class AuthenticationController extends Controller
         if ( ! $azureUser->hasAccess($this->adGroups()))
             return redirect(route('sdu.mfa.forbidden'));
 
-        auth()->login($azureUser);
+        auth()->login($this->getUser($azureUser));
 
         return redirect($state->uri);
+    }
+
+    private function getUser(User $user)
+    {
+        if (config('sdu-mfa.persist_users') == null)
+            return $user;
+
+
+        return $this->updateUser($user);
+    }
+
+    private function updateUser(User $user)
+    {
+        $userClass = config('sdu-mfa.persist_users');
+        $dbUser    = null;
+        $userClass::unguarded(function () use (&$dbUser, $user, $userClass)
+        {
+            $dbUser = $userClass::updateOrCreate([
+                'guid' => $user->getId(),
+            ], [
+                'name'       => $user->getDisplayName(),
+                'given_name' => $user->getGivenName(),
+                'sur_name'   => $user->getSurname(),
+                'email'      => $user->getMail(),
+                'title'      => $user->getJobTitle(),
+                'ad_groups'  => collect($user->getGroupCollection()->toArray())->pluck('id')
+            ]);
+        });
+
+        return $dbUser;
     }
 
     private function adGroups() : array
